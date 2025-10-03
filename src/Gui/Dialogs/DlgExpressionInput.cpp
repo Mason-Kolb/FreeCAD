@@ -71,7 +71,10 @@ DlgExpressionInput::DlgExpressionInput(const App::ObjectIdentifier & _path,
     ui->setupUi(this);
     okBtn = ui->buttonBox->button(QDialogButtonBox::Ok);
     discardBtn = ui->buttonBox->button(QDialogButtonBox::Reset);
-    discardBtn->setToolTip(tr("Revert to last calculated value (as constant)"));
+
+    //Edited by Mason Kolb, commented out original line, and changed it
+    //discardBtn->setToolTip(tr("Revert to last calculated value (as constant)"));
+    discardBtn->setToolTip(tr("Clears the input field and does not close the editor."));
 
     initializeVarSets();
 
@@ -80,6 +83,12 @@ DlgExpressionInput::DlgExpressionInput(const App::ObjectIdentifier & _path,
         this, &DlgExpressionInput::textChanged);
     connect(discardBtn, &QPushButton::clicked,
         this, &DlgExpressionInput::setDiscarded);
+
+    // Added by Mason Kolb, when reset button is clicked, it shouldnt close the dialog, just clear the field
+    discardBtn->disconnect();
+
+    connect(discardBtn, &QPushButton::clicked,
+        this, &DlgExpressionInput::onResetClicked);
 
     if (expression) {
         ui->expression->setPlainText(QString::fromStdString(expression->toString()));
@@ -958,6 +967,21 @@ void DlgExpressionInput::setMsgText()
         const QString elidedMsg = msgFontMetrics.elidedText(QString::fromStdString(wrappedMsg), Qt::ElideRight, msgContentWidth * msgLinesLimit);
         ui->msg->setText(elidedMsg);
     }
+}
+
+//Method added by Mason Kolb
+void DlgExpressionInput::onResetClicked() {
+    const QSignalBlocker block(ui->expression);
+    ui->expression->clear();
+
+    //Clears the text and disables the OK button
+    ui->msg->clear();
+    okBtn->setEnabled(false);
+    discardBtn->setDefault(true);
+
+    //Reset any errors in visuals
+    ui->errorFrame->setVisible(false);
+    ui->msg->setPalette(okBtn->palette());
 }
 
 #include "moc_DlgExpressionInput.cpp"

@@ -120,6 +120,9 @@ private Q_SLOTS:
     void namePropChanged(const QString&);
     bool needReportOnVarSet();
 
+    // Added by Mason Kolb
+    void onResetClicked();
+
 private:
     ::Ui::DlgExpressionInput *ui;
     std::shared_ptr<App::Expression> expression;
